@@ -338,9 +338,10 @@ bool Encoder::abs_spi_init(){
     return true;
 }
 
-bool Encoder::abs_spi_start_transaction(){
-    if (config_.mode & MODE_FLAG_ABS){
-        if(hw_config_.spi->State != HAL_SPI_STATE_READY){
+bool Encoder::abs_spi_start_transaction() {
+    uint32_t mask = cpu_enter_critical();
+    if (config_.mode & MODE_FLAG_ABS) {
+        if (hw_config_.spi->State != HAL_SPI_STATE_READY) {
             set_error(ERROR_ABS_SPI_NOT_READY);
             return false;
         }
@@ -348,8 +349,9 @@ bool Encoder::abs_spi_start_transaction(){
         hw_config_.spi->Instance->CR1 = abs_spi_cr1;
         hw_config_.spi->Instance->CR2 = abs_spi_cr2;
         HAL_GPIO_WritePin(abs_spi_cs_port_, abs_spi_cs_pin_, GPIO_PIN_RESET);
-        HAL_SPI_TransmitReceive_DMA(hw_config_.spi,(uint8_t*)abs_spi_dma_tx_,(uint8_t*)abs_spi_dma_rx_,1);
+        HAL_SPI_TransmitReceive_DMA(hw_config_.spi, (uint8_t*)abs_spi_dma_tx_, (uint8_t*)abs_spi_dma_rx_, 3);
     }
+    cpu_exit_critical(mask);
     return true;
 }
 
