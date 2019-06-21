@@ -108,6 +108,8 @@ public:
     int32_t test_function(int32_t delta) { static int cnt = 0; return cnt += delta; }
 } static_functions;
 
+std::array<float, 10> errorParam;
+
 // When adding new functions/variables to the protocol, be careful not to
 // blow the communication stack. You can check comm_stack_info to see
 // how much headroom you have.
@@ -167,6 +169,18 @@ static inline auto make_obj_tree() {
             make_protocol_object("gpio3_analog_mapping", make_protocol_definitions(board_config.analog_mappings[2])),
             make_protocol_object("gpio4_analog_mapping", make_protocol_definitions(board_config.analog_mappings[3]))
             ),
+        make_protocol_object("error_params", 
+            make_protocol_property("0", &errorParam[0]),
+            make_protocol_property("1", &errorParam[1]),
+            make_protocol_property("2", &errorParam[2]),
+            make_protocol_property("3", &errorParam[3]),
+            make_protocol_property("4", &errorParam[4]),
+            make_protocol_property("5", &errorParam[5]),
+            make_protocol_property("6", &errorParam[6]),
+            make_protocol_property("7", &errorParam[7]),
+            make_protocol_property("8", &errorParam[8]),
+            make_protocol_property("9", &errorParam[9])
+        ),
         make_protocol_object("axis0", axes[0]->make_protocol_definitions()),
         make_protocol_object("axis1", axes[1]->make_protocol_definitions()),
         make_protocol_object("can", odCAN->make_protocol_definitions()),

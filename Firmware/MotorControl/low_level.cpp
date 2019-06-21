@@ -609,6 +609,9 @@ void update_brake_current() {
         safety_critical_apply_brake_resistor_timings(low_off, high_on);
     } else {
         //shuts off all motors AND brake resistor, sets error code on all motors.
+        errorParam[0] = brake_current;
+        errorParam[1] = brake_duty;
+        errorParam[2] = vbus_voltage;
         low_level_fault(Motor::ERROR_BRAKE_CURRENT_OUT_OF_RANGE);
     }
 }
