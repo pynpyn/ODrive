@@ -102,6 +102,14 @@ bool Controller::anticogging_calibration(float pos_estimate, float vel_estimate)
     return false;
 }
 
+namespace {
+float limitVel(const float vel_limit, const float vel_estimate, const float vel_gain, const float Iq) {
+    float Imax = (vel_limit - vel_estimate) * vel_gain;
+    float Imin = (-vel_limit - vel_estimate) * vel_gain;
+    return (Iq < Imin) ? Imin : (Iq > Imax) ? Imax : Iq;
+}
+}  // namespace
+
 bool Controller::update(float pos_estimate, float vel_estimate, float* current_setpoint_output) {
     // Only runs if anticogging_.calib_anticogging is true; non-blocking
     anticogging_calibration(pos_estimate, vel_estimate);
@@ -190,6 +198,11 @@ bool Controller::update(float pos_estimate, float vel_estimate, float* current_s
 
     // Velocity integral action before limiting
     Iq += vel_integrator_current_;
+
+    // Velocity limiting in current mode
+    if (config_.control_mode < CTRL_MODE_VELOCITY_CONTROL && config_.vel_limit > 0.0f) {
+        Iq = limitVel(config_.vel_limit, vel_estimate, config_.vel_gain, Iq);
+    }
 
     // Current limiting
     bool limited = false;
